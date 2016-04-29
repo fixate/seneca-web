@@ -15,6 +15,7 @@ var ServeStatic = require('serve-static')
 var JsonStringifySafe = require('json-stringify-safe')
 var Stats = require('rolling-stats')
 var Norma = require('norma')
+var PathHelper = require('path')
 
 var Error = require('eraro')({
   package: 'seneca',
@@ -812,13 +813,13 @@ function make_routespecs (actmap, spec, options) {
     // Only build a route if explicitly defined in map
     if (!routespec) return
 
-    var url = spec.prefix + fname
+    var url = PathHelper.join(spec.prefix, fname)
 
     // METHOD:true abbrev
     routespec = _.isBoolean(routespec) ? {} : routespec
 
     if (routespec.alias) {
-      url = spec.prefix + fixalias(routespec.alias)
+      url = PathHelper.join(spec.prefix, fixalias(routespec.alias))
     }
 
     routespec.premap = routespec.premap || spec.premap
@@ -1101,10 +1102,6 @@ function stringify (obj, indent, depth, decycler) {
 // Ensure the URL prefix is well-formed.
 function fixprefix (prefix, defaultprefix) {
   prefix = null != prefix ? prefix : defaultprefix
-
-  if (!prefix.match(/\/$/)) {
-    prefix += '/'
-  }
 
   if (!prefix.match(/^\//)) {
     prefix = '/' + prefix
